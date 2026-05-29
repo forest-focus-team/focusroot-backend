@@ -172,11 +172,11 @@ Chi tiết xem [CONTRIBUTING.md](CONTRIBUTING.md).
 
 | Tên | MSSV | Phụ trách |
 |---|---|---|
-| Member A | 2xxxxxxx | Auth, Security |
-| Member B | 2xxxxxxx | Session, Forest |
-| Member C | 2xxxxxxx | Group, WebSocket |
-| Member D | 2xxxxxxx | Prediction, Analytics |
-| Member E | 2xxxxxxx | DevOps, Testing, Docs |
+| Tran Manh Danh | BIT240053 | Auth, Security |
+| Le Viet Bac | BIT240036 | Session, Forest |
+| Pham Quang Hung | BIT247895 | Group, WebSocket |
+| Le Thanh Chung | BIT240045 | Prediction, Analytics |
+| Ngo Huu Diep | BIT240060 | DevOps, Testing, Docs |
 
 ---
 
