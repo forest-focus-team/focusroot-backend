@@ -51,16 +51,16 @@
 └─→ Đăng nhập thành công
 └─→ Trở thành Registered User 
 2️ Registered User
-├─→ UC-2: Create Focus Session ⏱️
+├─→ UC-2: Create Focus Session 
 │   └─→ Chặn apps, bắt đầu timer
 │
-├─→ UC-3: View Statistics 📊
+├─→ UC-3: View Statistics 
 │   └─→ Xem tổng thời gian, cây trồng
 │
-├─→ UC-4: Configure Blocked Apps ⚙️
+├─→ UC-4: Configure Blocked Apps 
 │   └─→ Chọn app cần chặn
 │
-└─→ UC-5: Invite Friend & Leaderboard 👥
+└─→ UC-5: Invite Friend & Leaderboard 
 └─→ Mời bạn, xem BXH
 
 ---
