@@ -2,7 +2,7 @@
 -- FocusRoot — 01-schema.sql
 -- MySQL 8.0 | utf8mb4_unicode_ci
 -- Khớp 100% với 8 JPA entities, ddl-auto: validate pass
--- Chuẩn 3NF: PK/FK/UK/CHECK, VARCHAR cho enum @STRING,
+-- Hibernate 6 (Spring Boot 3.2) map @Enumerated(STRING) → MySQL ENUM type (uppercase)
 -- DATETIME(6) cho LocalDateTime, BIT(1) cho Boolean
 -- =============================================================
 
@@ -55,14 +55,12 @@ CREATE TABLE IF NOT EXISTS focus_sessions (
     end_time         DATETIME(6),
     planned_duration INT             NOT NULL,
     actual_duration  INT,
-    status           VARCHAR(20)     NOT NULL DEFAULT 'IN_PROGRESS',
-    coin_earned      INT                      DEFAULT 0,
+    status           ENUM('IN_PROGRESS','SUCCESS','FAILED') NOT NULL DEFAULT 'IN_PROGRESS',
+    coin_earned      INT,
     CONSTRAINT pk_focus_sessions    PRIMARY KEY (id),
     CONSTRAINT fk_fs_user           FOREIGN KEY (user_id)         REFERENCES users       (id),
     CONSTRAINT fk_fs_tree_species   FOREIGN KEY (tree_species_id) REFERENCES tree_species(id),
-    CONSTRAINT chk_fs_status        CHECK (status IN ('IN_PROGRESS', 'SUCCESS', 'FAILED')),
     CONSTRAINT chk_fs_planned_dur   CHECK (planned_duration > 0),
-    CONSTRAINT chk_fs_coin_earned   CHECK (coin_earned >= 0),
     INDEX idx_fs_user_id   (user_id),
     INDEX idx_fs_user_status (user_id, status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -109,12 +107,11 @@ CREATE TABLE IF NOT EXISTS group_members (
     group_id  BIGINT      NOT NULL,
     user_id   BIGINT      NOT NULL,
     joined_at DATETIME(6) NOT NULL,
-    status    VARCHAR(10) NOT NULL DEFAULT 'ACTIVE',
+    status    ENUM('ACTIVE','LEFT','KICKED') NOT NULL DEFAULT 'ACTIVE',
     CONSTRAINT pk_group_members         PRIMARY KEY (id),
     CONSTRAINT uq_gm_group_user         UNIQUE (group_id, user_id),
     CONSTRAINT fk_gm_group              FOREIGN KEY (group_id) REFERENCES focus_groups(id),
     CONSTRAINT fk_gm_user               FOREIGN KEY (user_id)  REFERENCES users       (id),
-    CONSTRAINT chk_gm_status            CHECK (status IN ('ACTIVE', 'LEFT', 'KICKED')),
     INDEX idx_gm_group_id (group_id),
     INDEX idx_gm_user_id  (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -127,10 +124,9 @@ CREATE TABLE IF NOT EXISTS group_sessions (
     group_id   BIGINT      NOT NULL,
     start_time DATETIME(6),
     end_time   DATETIME(6),
-    status     VARCHAR(20) NOT NULL DEFAULT 'WAITING',
+    status     ENUM('WAITING','IN_PROGRESS','COMPLETED','FAILED') NOT NULL DEFAULT 'WAITING',
     CONSTRAINT pk_group_sessions    PRIMARY KEY (id),
     CONSTRAINT fk_gs_group          FOREIGN KEY (group_id) REFERENCES focus_groups(id),
-    CONSTRAINT chk_gs_status        CHECK (status IN ('WAITING', 'IN_PROGRESS', 'COMPLETED', 'FAILED')),
     INDEX idx_gses_group_id (group_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
