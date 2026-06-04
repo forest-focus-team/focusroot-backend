@@ -1,0 +1,36 @@
+@startuml Focus_Session_Sequence
+autonumber
+actor User as "Mobile Client"
+boundary Controller as "FocusSession Controller"
+control SessionService as "FocusSession Service"
+database MySQL as "MySQL DB"
+
+== Luồng Khởi Tạo Phiên (Start Focus Session) ==
+User -> Controller: POST /api/session/start (treeSpeciesId, durationMinutes)
+activate Controller
+Controller -> SessionService: startSession(userId, treeSpeciesId, duration)
+activate SessionService
+SessionService -> MySQL: Ghi nhận FocusSession mới (FOCUSING)
+MySQL --> SessionService: Lưu thành công
+SessionService --> Controller: Trả về thông tin phiên
+Controller --> User: HTTP 201 Created
+
+== Luồng Kết Thúc Phiên - THÀNH CÔNG (SUCCESS) ==
+User -> Controller: PUT /api/session/end (sessionId, status = "SUCCESS")
+SessionService -> MySQL: Cập nhật FocusSession = "SUCCESS"
+SessionService -> MySQL: Thêm cây sống vào MyForest (ALIVE)
+SessionService -> MySQL: Cộng điểm totalPoints cho User
+MySQL --> SessionService: Đồng bộ DB thành công
+SessionService --> Controller: Kết quả xử lý thành công
+Controller --> User: HTTP 200 OK
+
+== Luồng Kết Thúc Phiên - THẤT BẠI (FAILED) ==
+User -> Controller: PUT /api/session/end (sessionId, status = "FAILED")
+SessionService -> MySQL: Cập nhật FocusSession = "FAILED"
+SessionService -> MySQL: Thêm cây chết vào MyForest (WITHERED)
+MySQL --> SessionService: Đồng bộ DB thành công
+SessionService --> Controller: Kết quả xử lý thất bại
+Controller --> User: HTTP 200 OK
+deactivate SessionService
+deactivate Controller
+@enduml
