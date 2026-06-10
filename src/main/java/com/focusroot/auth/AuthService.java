@@ -1,7 +1,11 @@
 package com.focusroot.auth;
 
+import com.focusroot.dto.request.auth.LoginRequest;
+import com.focusroot.dto.request.auth.RegisterRequest;
+import com.focusroot.dto.response.UserResponse;
 import com.focusroot.user.User;
 import com.focusroot.user.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,20 +20,16 @@ public class AuthService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername())
-                .password(user.getPasswordHash())
-                .roles("USER")
-                .build();
+        return UserPrincipal.from(user);
     }
 
-    public String register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Username already taken");
         }
@@ -41,16 +41,41 @@ public class AuthService implements UserDetailsService {
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .build();
-        userRepository.save(user);
-        return jwtUtil.generateToken(user.getUsername());
+        user = userRepository.save(user);
+        return buildAuthResponse(user);
     }
 
-    public String login(LoginRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
+    public AuthResponse login(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new BadCredentialsException("Invalid credentials");
         }
-        return jwtUtil.generateToken(user.getUsername());
+        return buildAuthResponse(user);
+    }
+
+    public AuthResponse refresh(String refreshToken) {
+        if (!jwtService.isValid(refreshToken) || !jwtService.isRefreshToken(refreshToken)) {
+            throw new BadCredentialsException("Invalid or expired refresh token");
+        }
+        String username = jwtService.extractUsername(refreshToken);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return buildAuthResponse(user);
+    }
+
+    private AuthResponse buildAuthResponse(User user) {
+        return AuthResponse.builder()
+                .accessToken(jwtService.generateAccessToken(user))
+                .refreshToken(jwtService.generateRefreshToken(user))
+                .user(UserResponse.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .email(user.getEmail())
+                        .coin(user.getCoin())
+                        .totalFocusMinutes(user.getTotalFocusMinutes())
+                        .createdAt(user.getCreatedAt())
+                        .build())
+                .build();
     }
 }
