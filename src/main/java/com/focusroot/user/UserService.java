@@ -1,5 +1,6 @@
 package com.focusroot.user;
 
+import com.focusroot.dto.response.UserResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,9 +22,13 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
     }
 
+    public UserResponse getProfile(Long userId) {
+        return mapToResponse(findById(userId));
+    }
+
     @Transactional
-    public User updateProfile(String username, UpdateProfileRequest request) {
-        User user = findByUsername(username);
+    public UserResponse updateProfile(Long userId, UpdateProfileRequest request) {
+        User user = findById(userId);
         if (request.getEmail() != null && !request.getEmail().isBlank()) {
             if (userRepository.existsByEmail(request.getEmail())
                     && !user.getEmail().equals(request.getEmail())) {
@@ -31,6 +36,17 @@ public class UserService {
             }
             user.setEmail(request.getEmail());
         }
-        return userRepository.save(user);
+        return mapToResponse(userRepository.save(user));
+    }
+
+    public UserResponse mapToResponse(User user) {
+        return UserResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .coin(user.getCoin())
+                .totalFocusMinutes(user.getTotalFocusMinutes())
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 }
