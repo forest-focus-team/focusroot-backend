@@ -1,0 +1,38 @@
+@startuml Phase2_UseCase
+left to right direction
+skinparam backgroundColor #FEFEFE
+skinparam actorBackgroundColor #FFE6CC
+skinparam usecaseBackgroundColor #E6F2FF
+
+actor "Registered User" as User
+actor "AI/ML Engine" as AI
+
+rectangle "FocusRoot System - Phase 2" {
+  rectangle "Drop-out Prediction" {
+    usecase "UC-6 View Drop-out Risk Score" as UC6
+    usecase "UC-7 Receive Drop-out Warning" as UC7
+    usecase "UC-8 View Personalized Suggestions" as UC8
+  }
+  rectangle "Group Peer-pressure" {
+    usecase "UC-9 Create Group Session" as UC9
+    usecase "UC-10 Join Group Session" as UC10
+    usecase "UC-11 View Group Leaderboard" as UC11
+  }
+}
+
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+User --> UC10
+User --> UC11
+
+AI --> UC6 : analyze
+AI --> UC7 : trigger
+AI --> UC8 : suggest
+
+UC6 ..> UC7 : extend
+UC6 ..> UC8 : extend
+UC9 ..> UC10 : include
+UC10 ..> UC11 : include
+@enduml
