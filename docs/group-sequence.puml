@@ -1,0 +1,35 @@
+@startuml Group_Operations_Sequence
+autonumber
+actor User as "Mobile Client"
+boundary GroupController as "Group Controller"
+control GroupService as "Group Service"
+database MySQL as "MySQL DB"
+
+== Luồng Tạo Nhóm Tập Trung ==
+User -> GroupController: POST /api/group/create (groupName)
+activate GroupController
+GroupController -> GroupService: createGroup(userId, groupName)
+activate GroupService
+GroupService -> GroupService: Tạo mã mời ngẫu nhiên
+GroupService -> MySQL: Lưu FocusGroup mới
+GroupService -> MySQL: Thêm Creator vào GroupMember (LEADER)
+MySQL --> GroupService: Đã lưu thông tin
+GroupService --> GroupController: Trả về thông tin Group + Invite Code
+GroupController --> User: HTTP 201 Created
+
+== Luồng Tham Gia Nhóm Qua Mã Mời ==
+User -> GroupController: POST /api/group/join (inviteCode)
+GroupService -> MySQL: Tìm FocusGroup theo mã inviteCode
+alt Mã mời hợp lệ
+    MySQL --> GroupService: Đối tượng FocusGroup
+    GroupService -> MySQL: Thêm bản ghi mới vào GroupMember (MEMBER)
+    MySQL --> GroupService: Lưu thành công
+    GroupService --> GroupController: Trả về thông tin thành viên
+    GroupController --> User: HTTP 200 OK
+else Mã mời không chính xác
+    GroupService --> GroupController: Throw ResourceNotFoundException
+    GroupController --> User: HTTP 404 Not Found
+end
+deactivate GroupService
+deactivate GroupController
+@enduml

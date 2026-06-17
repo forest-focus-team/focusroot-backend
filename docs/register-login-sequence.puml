@@ -1,0 +1,45 @@
+@startuml Register_Login_Sequence
+autonumber
+actor User as "Mobile Client"
+boundary AuthController as "Auth Controller"
+control UserService as "User Service"
+control JwtProvider as "JWT Token Provider"
+database MySQL as "MySQL DB"
+
+== Luồng Đăng Ký Tài Khoản ==
+User -> AuthController: POST /api/auth/register (email, password, fullName)
+activate AuthController
+AuthController -> UserService: register(userDto)
+activate UserService
+UserService -> MySQL: Kiểm tra email tồn tại?
+MySQL --> UserService: Kết quả (Chưa tồn tại)
+UserService -> UserService: Mã hóa password (BCrypt)
+UserService -> MySQL: Save New User Entity
+MySQL --> UserService: Thành công
+UserService --> AuthController: Trả về User đối tượng
+deactivate UserService
+AuthController --> User: HTTP 201 Created
+deactivate AuthController
+
+== Luồng Đăng Nhập Hệ Thống ==
+User -> AuthController: POST /api/auth/login (email, password)
+activate AuthController
+AuthController -> UserService: login(loginDto)
+activate UserService
+UserService -> MySQL: Tìm User theo email
+MySQL --> UserService: User Entity
+UserService -> UserService: Khớp mật khẩu (BCrypt Match)
+alt Đăng nhập thành công
+    UserService -> JwtProvider: generateToken(User)
+    activate JwtProvider
+    JwtProvider --> UserService: String AccessToken (JWT)
+    deactivate JwtProvider
+    UserService --> AuthController: Trả về JwtResponse
+    AuthController --> User: HTTP 200 OK + Bearer Token
+else Sai thông tin đăng nhập
+    UserService --> AuthController: Throw BadCredentialsException
+    AuthController --> User: HTTP 401 Unauthorized
+end
+deactivate UserService
+deactivate AuthController
+@enduml

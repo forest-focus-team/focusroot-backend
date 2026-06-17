@@ -1,0 +1,122 @@
+@startuml FocusRoot_Class_Diagram
+skinparam linestyle ortho
+skinparam packageStyle rectangle
+
+package "Entities (Domain Model)" {
+    class User {
+        - Long id
+        - String email
+        - String password
+        - String fullName
+        - String avatarUrl
+        - Long totalPoints
+        - LocalDateTime createdAt
+    }
+    class TreeSpecies {
+        - Long id
+        - String name
+        - String imageUrl
+        - Integer costPoints
+        - Integer growthTime
+    }
+    class FocusSession {
+        - Long id
+        - LocalDateTime startTime
+        - LocalDateTime endTime
+        - Integer durationMinutes
+        - String status
+    }
+    class MyForest {
+        - Long id
+        - LocalDateTime plantedAt
+        - String status
+    }
+    class UserActivityLog {
+        - Long id
+        - String action
+        - String ipAddress
+        - LocalDateTime timestamp
+    }
+    class FocusGroup {
+        - Long id
+        - String groupName
+        - String inviteCode
+        - LocalDateTime createdAt
+    }
+    class GroupMember {
+        - Long id
+        - String role
+        - LocalDateTime joinedAt
+    }
+    class GroupSession {
+        - Long id
+        - LocalDateTime startTime
+        - LocalDateTime endTime
+        - String status
+    }
+}
+
+package "Repositories" {
+    interface UserRepository
+    interface FocusSessionRepository
+    interface MyForestRepository
+    interface FocusGroupRepository
+    interface GroupMemberRepository
+}
+
+package "Services" {
+    class UserService {
+        + register(UserDto): User
+        + login(LoginDto): String
+        + updateProfile(Long, UserDto): User
+    }
+    class FocusSessionService {
+        + startSession(Long, Long, int): FocusSession
+        + endSession(Long, String): FocusSession
+    }
+    class GroupService {
+        + createGroup(Long, String): FocusGroup
+        + joinGroup(Long, String): GroupMember
+    }
+}
+
+package "Controllers" {
+    class AuthController {
+        + register(UserDto): ResponseEntity
+        + login(LoginDto): ResponseEntity
+    }
+    class FocusSessionController {
+        + startSession(Principal, StartSessionDto): ResponseEntity
+        + endSession(Principal, EndSessionDto): ResponseEntity
+    }
+    class GroupController {
+        + createGroup(Principal, CreateGroupDto): ResponseEntity
+        + joinGroup(Principal, JoinGroupDto): ResponseEntity
+    }
+}
+
+User "1" *-- "0..*" FocusSession : has
+User "1" *-- "0..*" MyForest : owns
+User "1" *-- "0..*" UserActivityLog : generates
+User "1" -- "0..*" GroupMember
+FocusGroup "1" *-- "0..*" GroupMember : contains
+FocusGroup "1" *-- "0..*" GroupSession : schedules
+TreeSpecies "1" -- "0..*" FocusSession : selected_in
+TreeSpecies "1" -- "0..*" MyForest : grows
+
+AuthController --> UserService
+FocusSessionController --> FocusSessionService
+GroupController --> GroupService
+
+UserService --> UserRepository
+FocusSessionService --> FocusSessionRepository
+FocusSessionService --> MyForestRepository
+GroupService --> FocusGroupRepository
+GroupService --> GroupMemberRepository
+
+UserRepository ..> User
+FocusSessionRepository ..> FocusSession
+MyForestRepository ..> MyForest
+FocusGroupRepository ..> FocusGroup
+GroupMemberRepository ..> GroupMember
+@enduml

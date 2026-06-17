@@ -7,12 +7,11 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class GroupResponse {
+public class UserResponse {
     private Long id;
-    private String name;
-    private Long ownerId;
-    private String ownerUsername;
-    private Boolean isActive;
-    private Integer penaltyCoins;
+    private String username;
+    private String email;
+    private Integer coin;
+    private Integer totalFocusMinutes;
     private LocalDateTime createdAt;
 }
