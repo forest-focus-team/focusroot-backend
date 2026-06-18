@@ -21,7 +21,7 @@ public class ForestController {
 
     private final ForestService forestService;
 
-    @Operation(summary = "Get current user's forest (all planted trees)")
+    @Operation(summary = "Get current user's forest timeline (all planted trees sorted by time)")
     @GetMapping
     public ResponseEntity<ApiResponse<List<MyForest>>> getForest(
             @AuthenticationPrincipal UserDetails principal) {
@@ -34,5 +34,14 @@ public class ForestController {
     public ResponseEntity<ApiResponse<List<TreeSpecies>>> getSpecies() {
         List<TreeSpecies> species = forestService.getAllSpecies();
         return ResponseEntity.ok(ApiResponse.ok(species));
+    }
+
+    @Operation(summary = "Buy a tree species using coins from shop")
+    @PostMapping("/shop/buy/{speciesId}")
+    public ResponseEntity<ApiResponse<MyForest>> buyTree(
+            @AuthenticationPrincipal UserDetails principal,
+            @PathVariable Long speciesId) {
+        MyForest purchasedTree = forestService.buyTree(principal.getUsername(), speciesId);
+        return ResponseEntity.ok(ApiResponse.ok(purchasedTree));
     }
 }
