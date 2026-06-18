@@ -13,6 +13,32 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Transactional
+public MyForest buyTree(String username, Long speciesId) {
+    User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+            
+    TreeSpecies species = treeSpeciesRepository.findById(speciesId)
+            .orElseThrow(() -> new EntityNotFoundException("Tree species not found"));
+
+    // Kiểm tra điều kiện số dư coin của tài khoản
+    if (user.getTotalCoins() < species.getBuyCostCoins()) {
+        throw new IllegalArgumentException("Insufficient coins to buy this tree");
+    }
+
+    // Trừ coin atomic trực tiếp trên đối tượng được quản lý bởi Hibernate Persistence Context
+    user.setTotalCoins(user.getTotalCoins() - species.getBuyCostCoins());
+    userRepository.save(user);
+
+    // Tiến hành gieo cây mới vào khu rừng ở trạng thái PURCHASED
+    MyForest plant = new MyForest();
+    plant.setUser(user);
+    plant.setTreeSpecies(species);
+    plant.setPlantedAt(LocalDateTime.now());
+    plant.setStatus("PURCHASED");
+
+    return forestRepository.save(plant);
+}
 public class ForestService {
 
     private final ForestRepository forestRepository;
