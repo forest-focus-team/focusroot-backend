@@ -17,6 +17,14 @@ import java.util.List;
 @RequestMapping("/forest")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
+@Operation(summary = "Buy a tree species using coins")
+@PostMapping("/shop/buy/{speciesId}")
+public ResponseEntity<ApiResponse<MyForest>> buyTree(
+        @AuthenticationPrincipal UserDetails principal,
+        @PathVariable Long speciesId) {
+    MyForest purchasedTree = forestService.buyTree(principal.getUsername(), speciesId);
+    return ResponseEntity.ok(ApiResponse.ok(purchasedTree));
+}
 public class ForestController {
 
     private final ForestService forestService;
