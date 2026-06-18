@@ -27,11 +27,11 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
         String token = authHeaders.get(0).replace("Bearer ", "");
         try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
+            Claims claims = Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();
 
             attributes.put("userId", claims.getSubject());
             return true;

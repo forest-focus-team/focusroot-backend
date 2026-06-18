@@ -8,6 +8,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+    # Hibernate tạo schema trước, SAU ĐÓ Spring chạy data.sql (thứ tự đúng)
+    defer-datasource-initialization: true
     show-sql: false
     properties:
       hibernate:
@@ -16,6 +18,10 @@ spring:
   h2:
     console:
       enabled: false
+  sql:
+    init:
+      # always: cho phép data.sql chạy sau khi schema được tạo bởi Hibernate
+      mode: always
 
 app:
   jwt:

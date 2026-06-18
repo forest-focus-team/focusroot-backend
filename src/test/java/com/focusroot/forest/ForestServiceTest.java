@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -21,26 +21,29 @@ public class ForestServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private TreeSpeciesRepository treeSpeciesRepository;
+
     @InjectMocks
     private ForestService forestService;
 
     @Test
     public void testHandleSessionEnd_Success() {
         User user = new User();
-        user.setTotalPoints(100L);
+        user.setCoin(100);
 
         TreeSpecies species = new TreeSpecies();
-        species.setCostPoints(50);
+        species.setCoinCost(50);
 
-        MyForest expectedForest = new MyForest();
-        expectedForest.setStatus("ALIVE");
+        MyForest saved = new MyForest();
+        saved.setIsAlive(true);
 
-        when(forestRepository.save(any(MyForest.class))).thenReturn(expectedForest);
+        when(forestRepository.save(any(MyForest.class))).thenReturn(saved);
 
-        MyForest result = forestService.handleSessionEnd(user, species, "COMPLETED");
+        MyForest result = forestService.handleSessionEnd(user, species, true);
 
-        assertEquals("ALIVE", result.getStatus());
-        assertEquals(150L, user.getTotalPoints());
+        assertTrue(result.getIsAlive());
+        assertEquals(150, user.getCoin());
         verify(forestRepository, times(1)).save(any(MyForest.class));
         verify(userRepository, times(1)).save(user);
     }
@@ -48,20 +51,20 @@ public class ForestServiceTest {
     @Test
     public void testHandleSessionEnd_Failed() {
         User user = new User();
-        user.setTotalPoints(100L);
+        user.setCoin(100);
 
         TreeSpecies species = new TreeSpecies();
-        species.setCostPoints(50);
+        species.setCoinCost(50);
 
-        MyForest expectedForest = new MyForest();
-        expectedForest.setStatus("WITHERED");
+        MyForest saved = new MyForest();
+        saved.setIsAlive(false);
 
-        when(forestRepository.save(any(MyForest.class))).thenReturn(expectedForest);
+        when(forestRepository.save(any(MyForest.class))).thenReturn(saved);
 
-        MyForest result = forestService.handleSessionEnd(user, species, "FAILED");
+        MyForest result = forestService.handleSessionEnd(user, species, false);
 
-        assertEquals("WITHERED", result.getStatus());
-        assertEquals(100L, user.getTotalPoints()); // Không được cộng điểm
+        assertFalse(result.getIsAlive());
+        assertEquals(100, user.getCoin());
         verify(forestRepository, times(1)).save(any(MyForest.class));
         verify(userRepository, never()).save(any(User.class));
     }
