@@ -29,23 +29,16 @@ public class ForestService {
         return treeSpeciesRepository.findAll();
     }
 
-    /**
-     * Core logic nghiệp vụ Tuần 3: Xử lý gieo cây mọc hoặc cây chết héo sau khi phiên kết thúc.
-     * Hàm này sẽ tự động chạy thông qua Spring Event Listener từ cấu phần của Bắc gửi sang.
-     */
-    public MyForest handleSessionEnd(User user, TreeSpecies species, String sessionStatus) {
+    public MyForest handleSessionEnd(User user, TreeSpecies species, boolean succeeded) {
         MyForest plant = new MyForest();
         plant.setUser(user);
         plant.setTreeSpecies(species);
         plant.setPlantedAt(LocalDateTime.now());
+        plant.setIsAlive(succeeded);
 
-        if ("COMPLETED".equals(sessionStatus)) {
-            plant.setStatus("ALIVE");
-            // Logic cộng điểm thưởng tích lũy cho người dùng sau khi tập trung thành công
-            user.setTotalPoints(user.getTotalPoints() + species.getCostPoints());
+        if (succeeded) {
+            user.setCoin(user.getCoin() + species.getCoinCost());
             userRepository.save(user);
-        } else {
-            plant.setStatus("WITHERED"); // Cây héo rũ nếu phiên làm việc thất bại/bỏ cuộc
         }
 
         return forestRepository.save(plant);

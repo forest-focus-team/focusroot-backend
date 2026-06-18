@@ -1,8 +1,12 @@
 package com.focusroot.auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.focusroot.common.ErrorResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final ObjectMapper objectMapper;
 
     private static final String[] PUBLIC_PATHS = {
             "/auth/**",
@@ -34,6 +39,23 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(PUBLIC_PATHS).permitAll()
                 .anyRequest().authenticated()
+            )
+            // Đảm bảo Spring Security 401/403 cũng trả ErrorResponse thay vì trang HTML
+            .exceptionHandling(e -> e
+                .authenticationEntryPoint((request, response, ex) -> {
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write(
+                            objectMapper.writeValueAsString(
+                                    ErrorResponse.of("UNAUTHORIZED", "Authentication required")));
+                })
+                .accessDeniedHandler((request, response, ex) -> {
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.getWriter().write(
+                            objectMapper.writeValueAsString(
+                                    ErrorResponse.of("FORBIDDEN", "Access denied")));
+                })
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
