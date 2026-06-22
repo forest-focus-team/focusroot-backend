@@ -1,14 +1,16 @@
 package com.focusroot.group;
 
-import com.focusroot.common.AppConstants;
-import com.focusroot.user.User;
-import com.focusroot.user.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.focusroot.common.AppConstants;
+import com.focusroot.user.User;
+import com.focusroot.user.UserRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +44,10 @@ public class GroupService {
         User user = findUser(username);
         FocusGroup group = findGroup(groupId);
 
+        if (!group.getIsActive()) {
+            throw new IllegalArgumentException("Group is not active");
+        }
+
         memberRepository.findByGroupAndUser(group, user).ifPresent(m -> {
             if (m.getStatus() == GroupMember.Status.ACTIVE) {
                 throw new IllegalArgumentException("Already a member of this group");
@@ -50,7 +56,7 @@ public class GroupService {
 
         long activeCount = memberRepository.countByGroupAndStatus(group, GroupMember.Status.ACTIVE);
         if (activeCount >= AppConstants.MAX_GROUP_MEMBERS) {
-            throw new IllegalArgumentException("Group is full");
+            throw new IllegalArgumentException("Group is full (max " + AppConstants.MAX_GROUP_MEMBERS + " members)");
         }
 
         GroupMember member = GroupMember.builder()
