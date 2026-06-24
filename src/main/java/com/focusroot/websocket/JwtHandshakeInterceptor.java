@@ -14,7 +14,7 @@ import java.util.Map;
 @Component
 public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
-    @Value("${jwt.secret}")
+    @Value("${app.jwt.secret}")
     private String jwtSecret;
 
     @Override
