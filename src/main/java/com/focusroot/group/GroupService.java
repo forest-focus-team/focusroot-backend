@@ -80,4 +80,26 @@ public class GroupService {
         return groupRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Group not found: " + id));
     }
+
+    public GroupResponse mapGroupToResponse(FocusGroup group) {
+        return GroupResponse.builder()
+                .id(group.getId())
+                .name(group.getName())
+                .ownerUsername(group.getOwner().getUsername())
+                .penaltyCoins(group.getPenaltyCoins())
+                .isActive(group.getIsActive())
+                .createdAt(group.getCreatedAt())
+                .build();
+    }
+
+    public GroupMemberResponse mapMemberToResponse(GroupMember member) {
+        return GroupMemberResponse.builder()
+                .id(member.getId())
+                .groupId(member.getGroup().getId())
+                .groupName(member.getGroup().getName())
+                .username(member.getUser().getUsername())
+                .status(member.getStatus())
+                .joinedAt(member.getJoinedAt())
+                .build();
+    }
 }
