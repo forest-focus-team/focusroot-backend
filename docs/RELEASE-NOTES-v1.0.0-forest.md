@@ -35,7 +35,6 @@ Chi tiết & tiêu chí: `docs/ISSUE-43-REVISED.md`.
 - `mvn -B test -Dspring.profiles.active=test` → **40 tests, 0 failures** (H2 in-memory).
 
 ## 📝 Ghi chú tag
-Tag `v1.0.0` cũ là **tag rác/init** (lightweight, trỏ vào `Initial commit` gần-trống).
 Bản phát hành thật là tag **annotated `v1.0.0-forest`**.
 
 **Changelog đầy đủ:** [`CHANGELOG.md`](../CHANGELOG.md)
