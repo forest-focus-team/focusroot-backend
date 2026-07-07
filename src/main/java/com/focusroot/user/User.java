@@ -1,5 +1,6 @@
 package com.focusroot.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -25,6 +26,8 @@ public class User {
     @Column(unique = true, nullable = false, length = 100)
     private String email;
 
+    // Không bao giờ serialize hash mật khẩu ra JSON (SessionController/... trả entity FocusSession có quan hệ User) — issue #43
+    @JsonIgnore
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
