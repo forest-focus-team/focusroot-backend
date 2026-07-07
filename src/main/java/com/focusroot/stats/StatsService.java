@@ -7,7 +7,7 @@ import com.focusroot.forest.ForestRepository;
 import com.focusroot.prediction.UserActivityLog;
 import com.focusroot.prediction.UserActivityLogRepository;
 import com.focusroot.session.FocusSession;
-import com.focusroot.session.FocusSessionRepository;
+import com.focusroot.session.SessionRepository;
 import com.focusroot.user.User;
 import com.focusroot.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
 public class StatsService {
 
     private final UserRepository userRepository;
-    private final FocusSessionRepository sessionRepository;
+    private final SessionRepository sessionRepository;
     private final ForestRepository forestRepository;
     private final UserActivityLogRepository activityLogRepository;
 
