@@ -23,7 +23,6 @@
 | Hạng mục | Thực trạng phát hiện |
 |---|---|
 | `main` | Chỉ có `Initial commit` (`c427382`: `.gitignore` + `LICENSE` + `README.md`). Chưa có code thật. |
-| Tag `v1.0.0` | **Lightweight tag rác**, trỏ đúng `Initial commit` (= `main` gần-trống). Không phải bản phát hành thật. → vẫn dùng `v1.0.0-forest`, ghi chú trong CHANGELOG (không nhảy v2.0.0 chỉ vì trùng tên). |
 | `develop` | Đã merge tới PR #59/#60 (nhóm D). Build baseline: **BUILD SUCCESS, 41 tests, 0 failures**. |
 | 2 session controller | `SessionController` `/sessions` (đúng, `ApiResponse<T>`, có trồng cây) **vs** `FocusSessionController` `/api/sessions` → **double-prefix `/api/api/sessions`** (context-path=/api), trả DTO trần, **không** trồng cây. |
 | DTO trùng | 9 lớp trùng/mồ côi ở 2–3 package (`SessionResponse`, `CreateGroupRequest`, `JoinGroupRequest`, `GroupResponse`, `StartSessionRequest`, `EndSessionRequest`). |
