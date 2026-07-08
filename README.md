@@ -82,16 +82,26 @@ docker-compose up -d mysql
 
 Truy cập phpMyAdmin tại `http://localhost:8081` (user: root / pass: focusroot123).
 
-### 3. Cấu hình environment (tuỳ chọn)
+### 3. Cấu hình environment (bắt buộc)
 
-Tạo file `.env` hoặc set biến môi trường:
+Copy file mẫu rồi điền giá trị thật:
 
 ```bash
-DB_PASSWORD=focusroot123
-JWT_SECRET=your-super-secret-key-at-least-32-chars
+cp .env.example .env
 ```
 
-> Mặc định trong `application.yml` đã có giá trị fallback để chạy local.
+Các biến (chi tiết trong [`.env.example`](.env.example)):
+
+| Biến | Bắt buộc | Ghi chú |
+|---|---|---|
+| `JWT_SECRET` | ✅ Có | Khoá ký JWT, **tối thiểu 32 ký tự**. **Không có default** — thiếu là app fail-fast khi khởi động. Sinh khoá: `openssl rand -base64 48` |
+| `DB_PASSWORD` | Tuỳ chọn | Mật khẩu MySQL, default `focusroot123` cho dev local; bắt buộc override khi deploy thật |
+
+> ⚠️ Spring Boot **không** tự đọc file `.env`. Nạp biến ra môi trường trước khi chạy:
+
+```bash
+export $(grep -v '^#' .env | xargs)
+```
 
 ### 4. Chạy ứng dụng
 
