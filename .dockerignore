@@ -1,0 +1,13 @@
+# Giữ build context nhỏ & sạch
+target/
+.git/
+.github/
+.idea/
+.vscode/
+*.iml
+node_modules/
+docs/
+db/
+*.md
+.env
+.env*.local

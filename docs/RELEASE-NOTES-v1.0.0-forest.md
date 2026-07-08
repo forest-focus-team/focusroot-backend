@@ -38,4 +38,4 @@ Chi tiết & tiêu chí: `docs/ISSUE-43-REVISED.md`.
 Bản phát hành ổn định là tag **annotated `v1.0.0-forest`**.
 Tag `v1.0.0` là **pre-release cũ hơn** (do Member B tạo) — được giữ lại làm phiên bản cũ, không xoá.
 
-**Changelog đầy đủ:** [`CHANGELOG.md`](../CHANGELOG.md)
+**Changelog đầy đủ:** [`CHANGELOG.md`](https://github.com/forest-focus-team/focusroot-backend/blob/main/CHANGELOG.md)

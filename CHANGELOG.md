@@ -4,6 +4,47 @@ Tất cả thay đổi đáng chú ý của **FocusRoot Backend** được ghi t
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.0.0/),
 dự án tuân theo [Semantic Versioning](https://semver.org/lang/vi/).
 
+## [1.0.2-forest] — 2026-07-08
+
+Bản vá (patch) — **release engineering & hardening**. Không đổi API contract, không
+sửa logic nghiệp vụ. Nâng chất lượng phát hành: tài liệu chính xác, cấu hình an toàn
+hơn (fail-fast secret), artifact build thật đính kèm, và mở rộng test hồi quy.
+
+> **Ghi chú SemVer:** đây là **PATCH** (`1.0.1 → 1.0.2`) vì chỉ gồm docs + chore +
+> reliability/security hardening — KHÔNG thêm/đổi endpoint hay contract, KHÔNG phải
+> bugfix nghiệp vụ mới (bug LazyInit đã vá ở `1.0.1-forest`). Giữ hậu tố `-forest`
+> theo đúng convention của `v1.0.0-forest`/`v1.0.1-forest`.
+
+### Added
+- `Dockerfile` multi-stage (build `maven:3.9-eclipse-temurin-17` → runtime
+  `eclipse-temurin:17-jre-alpine`, user non-root) + `.dockerignore`.
+- Service `app` trong `docker-compose.yml` → chạy cả stack (app + MySQL + phpMyAdmin)
+  bằng `docker-compose up --build`.
+- `.env.example` liệt kê đầy đủ biến môi trường (`JWT_SECRET` bắt buộc ≥ 32 ký tự,
+  `DB_PASSWORD` tuỳ chọn) + hướng dẫn nạp biến.
+- Hướng dẫn build JAR & Docker trong `CONTRIBUTING.md`.
+- Artifact **JAR runnable** (`focusroot-backend-1.0.2-forest.jar`) đính kèm GitHub Release.
+- Test hồi quy: thêm case `GET /sessions/history` (list, quan hệ LAZY lồng nhau) vào
+  `EntitySerializationIntegrationTest`.
+
+### Changed
+- README: bảng "Thành viên nhóm 5" dùng **tên thật + GitHub username** (đã xác minh
+  khớp contributors repo), bỏ cột MSSV placeholder giả; mục "Cấu hình environment"
+  trỏ vào `.env.example`.
+- `docker-compose.yml`: gỡ thuộc tính `version` đã lỗi thời.
+
+### Fixed
+- Link `CHANGELOG.md` trong release notes: đổi từ đường dẫn tương đối `../CHANGELOG.md`
+  (bị GitHub rewrite thành `.../blob/CHANGELOG.md` thiếu branch → 404) sang URL tuyệt
+  đối `.../blob/main/CHANGELOG.md`.
+
+### Security
+- Bỏ JWT signing secret mặc định hardcode trong `application.yml`
+  (`app.jwt.secret` → `${JWT_SECRET}`, bắt buộc, **fail-fast** khi thiếu) — một secret
+  đoán được cho phép giả mạo token nếu deploy quên set biến môi trường. `DB_PASSWORD`
+  giữ default local `focusroot123` (credential MySQL local, không phải khoá mật mã)
+  nhưng có ghi chú bắt buộc override khi deploy thật. Thêm `.env` vào `.gitignore`.
+
 ## [1.0.1-forest] — 2026-07-08
 
 Bản vá (patch) sau Forest 1.0 — gỡ lỗi **chặn demo end-to-end** + chỉnh mô tả tag.
