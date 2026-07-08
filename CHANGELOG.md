@@ -52,7 +52,9 @@ thành công thì trồng cây vào khu rừng → Nhận coin → Thống kê.
   ở Tuần 5 → conflict + không compile với model coin hiện tại → defer sang Tuần 6.
 
 ### Notes
-- **Tag `v1.0.0` cũ là tag rác/init**: là lightweight tag trỏ vào commit
-  `c427382 "Initial commit"` (chỉ `.gitignore`/`LICENSE`/`README.md`, trùng
-  `main` gần-trống), tạo trước khi có code thật. Bản phát hành thực đầu tiên là
-  tag **annotated `v1.0.0-forest`** trên `main` sau khi merge `develop → main`.
+- Bản phát hành ổn định đầu tiên là tag **annotated `v1.0.0-forest`** trên `main`
+  (sau khi merge `develop → main`).
+- Tag `v1.0.0` là **pre-release cũ hơn** (do Member B tạo — có asset JAR + notes
+  coursework). Git tag của nó trỏ vào `Initial commit` do `main` lúc đó chưa có code,
+  nhưng **được giữ lại** làm phiên bản cũ, cùng tồn tại với `v1.0.0-forest` (latest
+  stable). Không xoá.
