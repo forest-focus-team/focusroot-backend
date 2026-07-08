@@ -95,12 +95,53 @@ Trước khi tạo PR, tự kiểm tra:
 ## Setup môi trường dev
 
 ```bash
-# 1. Start DB
+# 1. Cấu hình biến môi trường (JWT_SECRET bắt buộc, >=32 ký tự)
+cp .env.example .env          # rồi điền JWT_SECRET
+export $(grep -v '^#' .env | xargs)
+
+# 2. Start DB
 docker-compose up -d mysql
 
-# 2. Chạy ứng dụng
+# 3. Chạy ứng dụng
 mvn spring-boot:run
 
-# 3. Chạy test (dùng H2 in-memory, không cần MySQL)
+# 4. Chạy test (dùng H2 in-memory, không cần MySQL / JWT_SECRET)
 mvn test -Dspring.profiles.active=test
 ```
+
+---
+
+## Build artifact (JAR) & Docker
+
+### Build fat JAR (runnable)
+
+```bash
+mvn -B clean package -DskipTests      # -> target/focusroot-backend-<version>.jar
+java -jar target/focusroot-backend-*.jar   # cần JWT_SECRET + MySQL đang chạy
+```
+
+JAR sinh ra là **fat/executable JAR** (Spring Boot repackage) — chạy trực tiếp bằng
+`java -jar`, không cần cài Maven. Đây là artifact được đính kèm vào GitHub Release.
+
+### Build & chạy bằng Docker (multi-stage)
+
+`Dockerfile` dùng multi-stage: build bằng `maven:3.9-eclipse-temurin-17`, runtime
+bằng `eclipse-temurin:17-jre-alpine` (user non-root).
+
+```bash
+# Chỉ build image
+docker build -t focusroot-backend:latest .
+
+# Chạy image (cần MySQL sẵn + JWT_SECRET)
+docker run --rm -p 8080:8080 -e JWT_SECRET="$(openssl rand -base64 48)" focusroot-backend:latest
+```
+
+### Chạy cả stack (app + MySQL + phpMyAdmin) bằng docker-compose
+
+```bash
+cp .env.example .env          # điền JWT_SECRET
+docker-compose up --build     # build image `app` + khởi động MySQL + phpMyAdmin
+```
+
+> App container tự trỏ DB sang service `mysql` qua `SPRING_DATASOURCE_URL`.
+> Thiếu `JWT_SECRET`, container `app` fail-fast (lệnh `up -d mysql` không bị ảnh hưởng).
