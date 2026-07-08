@@ -1,5 +1,6 @@
 package com.focusroot.forest;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.focusroot.session.FocusSession;
 import com.focusroot.user.User;
 import jakarta.persistence.*;
@@ -7,6 +8,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+// Bỏ qua thuộc tính nội bộ của Hibernate proxy khi serialize entity qua HTTP (LAZY + OSIV) — bug demo Tuần 5
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 @Table(name = "my_forest")
 @Data

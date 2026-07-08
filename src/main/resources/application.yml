@@ -16,7 +16,12 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
-    open-in-view: false
+    # Bật OSIV để serialize được quan hệ LAZY khi controller trả entity JPA
+    # (SessionController/ForestController trả FocusSession/MyForest có user/treeSpecies LAZY).
+    # Với false → tx đóng trước khi Jackson serialize → LazyInitializationException → HTTP 500.
+    # An toàn ở đây: quan hệ 1 chiều (không đệ quy) + User.passwordHash đã @JsonIgnore.
+    # Backlog Tuần 6: chuyển sang trả DTO phẳng để tắt lại OSIV. Guard: EntitySerializationIntegrationTest.
+    open-in-view: true
 
   jackson:
     time-zone: UTC
