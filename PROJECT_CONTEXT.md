@@ -2,6 +2,36 @@
 
 > File này dùng để Claude Code đọc vào đầu mỗi session làm việc.
 > Cập nhật cuối mỗi tuần bởi Member A (Nhóm trưởng).
+> ⚠️ Phần dưới (Tuần 1–2) là bản cũ. Bản tổng mới nhất ở `D:\Project\PROJECT_MEMORY.md`.
+
+---
+
+## 🔖 CẬP NHẬT v1.0.1-forest (08/07/2026)
+
+**Backend đã phát hành `v1.0.1-forest`** (patch, tag annotated trên `main`) — bản vá sau `v1.0.0-forest`.
+
+### 🐛 Fix LazyInitializationException (chặn demo)
+- `POST /api/sessions/{id}/end` và `GET /api/forest` trước đây trả **HTTP 500**: controller
+  trả thẳng entity JPA có quan hệ **LAZY** (`user`, `treeSpecies`, `focusSession`), transaction
+  đóng trước khi Jackson serialize (`spring.jpa.open-in-view: false`) → `LazyInitializationException`.
+- **Sửa:** bật `open-in-view: true` **và** `@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})`
+  trên `User`/`TreeSpecies`/`FocusSession`/`MyForest` (không thêm dependency). `passwordHash` vẫn
+  `@JsonIgnore` (không lộ dù serialize cả graph). Thêm `EntitySerializationIntegrationTest`
+  (`@SpringBootTest`+MockMvc) canh hồi quy. (PR #63)
+- Verify HTTP thật: chuỗi register→login→start→**end**→**forest**→stats đều **2xx**.
+- Backlog Phase 2: cân nhắc trả **DTO phẳng** để tắt lại OSIV.
+
+### 🏷️ Đính chính tag `v1.0.0`
+- `v1.0.0` **KHÔNG phải "tag rác"**. Đó là **pre-release cũ hơn** do Member B tạo (có asset JAR +
+  release notes coursework). Git tag của nó trỏ `Initial commit` do `main` lúc đó chưa có code,
+  nhưng **được giữ lại** làm phiên bản cũ, cùng tồn tại với `v1.0.0-forest`/`v1.0.1-forest`
+  (latest stable). **Không xoá.** (PR #64)
+
+### 📱 Trạng thái FE demo (xuyên repo)
+- FE nối API thật đã xong (Member D) — PR #7 (repo frontend):
+  https://github.com/forest-focus-team/focusroot-frontend/pull/7 → đã merge vào nhánh E →
+  lên `develop` FE (PR #8) → đang chờ release FE `v1.0.0-forest` (PR #9 develop→main).
+- Đã verify: `tsc --noEmit` exit 0, `expo export --platform web` exit 0, luồng API 2xx với BE.
 
 ---
 
