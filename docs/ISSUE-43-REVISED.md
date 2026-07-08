@@ -123,5 +123,5 @@
 | DoD: "CI xanh, cập nhật PROJECT_CONTEXT.md" | DoD **12 mục đo được** (mỗi mục có lệnh/URL/artifact) | DoD gốc không đo được → không biết khi nào "xong". |
 | Không có rollback | Thêm **rollback plan** phù hợp branch-protection | Release phải có đường lùi. |
 | `PROJECT_CONTEXT.md` | Chuyển sang `PROJECT_MEMORY.md` (bản tổng, mới hơn) | `PROJECT_CONTEXT.md` dừng ở Tuần 2, đã bị `PROJECT_MEMORY.md` thay thế. |
-| Tag `v1.0.0-forest` (ngầm định main sạch) |
+| Tag `v1.0.0-forest` (ngầm định main sạch) | Làm rõ: `v1.0.0` là **pre-release cũ hơn của Member B** (git tag trỏ `Initial commit` do `main` lúc đó trống) — **giữ lại** làm phiên bản cũ; thứ tự `develop→main` **rồi mới** tag `v1.0.0-forest` (latest stable). | Hai version cùng tồn tại; tránh nhầm & tránh tag trên commit rỗng. |
 | Không phân vai thao tác | Tách rõ: **Claude chuẩn bị** (branch/commit/docs) — **Lead A bấm** (push/PR/merge/tag) | Chỉ Lead có quyền merge `develop`/`main`; tránh vượt quyền. |

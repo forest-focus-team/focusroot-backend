@@ -4,6 +4,26 @@ Tất cả thay đổi đáng chú ý của **FocusRoot Backend** được ghi t
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.0.0/),
 dự án tuân theo [Semantic Versioning](https://semver.org/lang/vi/).
 
+## [1.0.1-forest] — 2026-07-08
+
+Bản vá (patch) sau Forest 1.0 — gỡ lỗi **chặn demo end-to-end** + chỉnh mô tả tag.
+
+### Fixed
+- **LazyInitializationException chặn demo**: `POST /api/sessions/{id}/end` và
+  `GET /api/forest` trả **HTTP 500** — controller trả thẳng entity JPA có quan hệ
+  LAZY (`user`, `treeSpecies`, `focusSession`), transaction đóng trước khi Jackson
+  serialize (`open-in-view: false`). Sửa: bật `open-in-view: true` **và**
+  `@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})` trên `User`,
+  `TreeSpecies`, `FocusSession`, `MyForest` (không thêm dependency). Bổ sung
+  `EntitySerializationIntegrationTest` (`@SpringBootTest`+MockMvc) canh hồi quy —
+  test tầng service/`@WebMvcTest` trước đó không bắt được vì không serialize qua HTTP. (PR #63)
+
+### Changed
+- Mô tả tag `v1.0.0` trong tài liệu: là **pre-release cũ hơn** của Member B (git tag
+  trỏ `Initial commit` do `main` lúc đó trống) — **được giữ lại** làm phiên bản cũ,
+  **không phải** "tag rác" như mô tả trước. Cập nhật `CHANGELOG`, `RELEASE-NOTES`,
+  `docs/ISSUE-43-REVISED.md`. (PR #64)
+
 ## [1.0.0-forest] — 2026-07-07
 
 Bản phát hành chính thức **Forest 1.0 — Core MVP** (kết thúc Phase 1, Tuần 2–5).
@@ -52,5 +72,9 @@ thành công thì trồng cây vào khu rừng → Nhận coin → Thống kê.
   ở Tuần 5 → conflict + không compile với model coin hiện tại → defer sang Tuần 6.
 
 ### Notes
-Bản phát hành thực đầu tiên là
-tag **annotated `v1.0.0-forest`** trên `main` sau khi merge `develop → main`.
+- Bản phát hành ổn định đầu tiên là tag **annotated `v1.0.0-forest`** trên `main`
+  (sau khi merge `develop → main`).
+- Tag `v1.0.0` là **pre-release cũ hơn** (do Member B tạo — có asset JAR + notes
+  coursework). Git tag của nó trỏ vào `Initial commit` do `main` lúc đó chưa có code,
+  nhưng **được giữ lại** làm phiên bản cũ, cùng tồn tại với `v1.0.0-forest` (latest
+  stable). Không xoá.
