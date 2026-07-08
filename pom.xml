@@ -14,7 +14,7 @@
 
     <groupId>com.focusroot</groupId>
     <artifactId>focusroot-backend</artifactId>
-    <version>1.0.0-forest</version>
+    <version>1.0.1-forest</version>
     <name>focusroot-backend</name>
     <description>FocusRoot - Focus Timer App Backend (Forest clone)</description>
 
