@@ -73,7 +73,10 @@ nếu trước đây bạn dựa vào default thì app sẽ fail-fast cho tới 
   mỗi case assert 200 + quan hệ LAZY lồng nhau serialize được + `passwordHash` không lộ.
 - **Build:** `mvn -B clean package -DskipTests` → BUILD SUCCESS → fat JAR runnable.
 - **Docker:** `docker build` từ `Dockerfile` multi-stage → image chạy được (JRE 17 alpine).
-- **CI (GitHub Actions "Backend CI", Java 17 + MySQL 8):** <!--CI_RUN_URL-->
+- **CI (GitHub Actions "Backend CI", Java 17 + MySQL 8):** ✅ **success** — PR #70
+  (`feature/A-release-v1.0.2-week6` → `develop`),
+  [run #28926496212](https://github.com/forest-focus-team/focusroot-backend/actions/runs/28926496212).
+  CI trên `develop → main` cũng phải xanh trước khi merge & tag.
 
 ## Known Issues
 
