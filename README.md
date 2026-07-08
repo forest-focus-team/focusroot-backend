@@ -170,13 +170,13 @@ Chi tiết xem [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Thành viên nhóm 5
 
-| Tên | MSSV | Phụ trách |
+| Họ tên | GitHub | Phụ trách |
 |---|---|---|
-| Member A | 2xxxxxxx | Auth, Security |
-| Member B | 2xxxxxxx | Session, Forest |
-| Member C | 2xxxxxxx | Group, WebSocket |
-| Member D | 2xxxxxxx | Prediction, Analytics |
-| Member E | 2xxxxxxx | DevOps, Testing, Docs |
+| Trần Mạnh Danh | [@manhdanhtran](https://github.com/manhdanhtran) | Lead, DB Architect, Backend Core |
+| Lê Viết Bắc | [@bac1234556](https://github.com/bac1234556) | Backend Developer |
+| Phạm Quang Hùng | [@PhamHung210](https://github.com/PhamHung210) | Backend + Algorithm |
+| Lê Thành Chung | [@chung-lol](https://github.com/chung-lol) | Backend + Realtime |
+| Ngô Hữu Điệp | [@ngohuudiep](https://github.com/ngohuudiep) | Frontend + Tester |
 
 ---
 
