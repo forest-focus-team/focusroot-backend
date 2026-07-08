@@ -22,4 +22,4 @@ Bản vá sau **v1.0.0-forest**, gỡ lỗi chặn demo end-to-end. Không đổ
 ## 🔁 Backlog
 - Cân nhắc trả **DTO phẳng** cho Session/Forest để tắt lại OSIV (bài bản hơn) — Tuần 6.
 
-**Changelog đầy đủ:** [`CHANGELOG.md`](../CHANGELOG.md)
+**Changelog đầy đủ:** [`CHANGELOG.md`](https://github.com/forest-focus-team/focusroot-backend/blob/main/CHANGELOG.md)
