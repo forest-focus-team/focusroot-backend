@@ -82,16 +82,26 @@ docker-compose up -d mysql
 
 Truy cập phpMyAdmin tại `http://localhost:8081` (user: root / pass: focusroot123).
 
-### 3. Cấu hình environment (tuỳ chọn)
+### 3. Cấu hình environment (bắt buộc)
 
-Tạo file `.env` hoặc set biến môi trường:
+Copy file mẫu rồi điền giá trị thật:
 
 ```bash
-DB_PASSWORD=focusroot123
-JWT_SECRET=your-super-secret-key-at-least-32-chars
+cp .env.example .env
 ```
 
-> Mặc định trong `application.yml` đã có giá trị fallback để chạy local.
+Các biến (chi tiết trong [`.env.example`](.env.example)):
+
+| Biến | Bắt buộc | Ghi chú |
+|---|---|---|
+| `JWT_SECRET` | ✅ Có | Khoá ký JWT, **tối thiểu 32 ký tự**. **Không có default** — thiếu là app fail-fast khi khởi động. Sinh khoá: `openssl rand -base64 48` |
+| `DB_PASSWORD` | Tuỳ chọn | Mật khẩu MySQL, default `focusroot123` cho dev local; bắt buộc override khi deploy thật |
+
+> ⚠️ Spring Boot **không** tự đọc file `.env`. Nạp biến ra môi trường trước khi chạy:
+
+```bash
+export $(grep -v '^#' .env | xargs)
+```
 
 ### 4. Chạy ứng dụng
 
@@ -170,13 +180,13 @@ Chi tiết xem [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Thành viên nhóm 5
 
-| Tên | MSSV | Phụ trách |
+| Họ tên | GitHub | Phụ trách |
 |---|---|---|
-| Member A | 2xxxxxxx | Auth, Security |
-| Member B | 2xxxxxxx | Session, Forest |
-| Member C | 2xxxxxxx | Group, WebSocket |
-| Member D | 2xxxxxxx | Prediction, Analytics |
-| Member E | 2xxxxxxx | DevOps, Testing, Docs |
+| Trần Mạnh Danh | [@manhdanhtran](https://github.com/manhdanhtran) | Lead, DB Architect, Backend Core |
+| Lê Viết Bắc | [@bac1234556](https://github.com/bac1234556) | Backend Developer |
+| Phạm Quang Hùng | [@PhamHung210](https://github.com/PhamHung210) | Backend + Algorithm |
+| Lê Thành Chung | [@chung-lol](https://github.com/chung-lol) | Backend + Realtime |
+| Ngô Hữu Điệp | [@ngohuudiep](https://github.com/ngohuudiep) | Frontend + Tester |
 
 ---
 

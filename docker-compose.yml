@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   mysql:
     image: mysql:8.0
@@ -35,6 +33,27 @@ services:
       PMA_PASSWORD: focusroot123
     ports:
       - "8081:80"
+
+  # Backend Spring Boot — build từ Dockerfile multi-stage.
+  # Chạy cả stack: `JWT_SECRET=... docker-compose up --build` (hoặc set trong .env).
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: focusroot-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      # Trong container phải trỏ tới service `mysql`, không phải localhost.
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/focusroot_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_PASSWORD: ${DB_PASSWORD:-focusroot123}
+      # BẮT BUỘC: set JWT_SECRET (>=32 ký tự) trong .env hoặc môi trường trước khi chạy `app`.
+      # Bỏ trống -> app fail-fast khi khởi động (không phá lệnh `up -d mysql` vốn không cần biến này).
+      JWT_SECRET: ${JWT_SECRET:-}
+    ports:
+      - "8080:8080"
 
 volumes:
   mysql_data:
