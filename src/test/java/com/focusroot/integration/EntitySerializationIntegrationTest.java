@@ -141,4 +141,31 @@ class EntitySerializationIntegrationTest {
                 .andExpect(jsonPath("$.data[0].isAlive").value(true))
                 .andExpect(jsonPath("$.data[0].user.passwordHash").doesNotExist());
     }
+
+    @Test
+    @DisplayName("GET /sessions/history → 200, danh sách phiên serialize được quan hệ LAZY")
+    void getHistory_serializesLazyRelations_asList() throws Exception {
+        User user = userRepository.findByUsername("alice").orElseThrow();
+        // Một phiên đã kết thúc để history có phần tử; user + treeSpecies là quan hệ LAZY
+        sessionRepository.save(FocusSession.builder()
+                .user(user)
+                .treeSpecies(species)
+                .startTime(LocalDateTime.now().minusMinutes(30))
+                .endTime(LocalDateTime.now().minusMinutes(5))
+                .plannedDuration(25)
+                .actualDuration(25)
+                .status(FocusSession.Status.SUCCESS)
+                .coinEarned(25)
+                .build());
+
+        mvc.perform(get("/sessions/history").with(user(principal)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                // Endpoint trả List<FocusSession> — mỗi phần tử có quan hệ LAZY phải serialize được
+                .andExpect(jsonPath("$.data[0].treeSpecies.name").value("Mầm xanh"))
+                .andExpect(jsonPath("$.data[0].user.username").value("alice"))
+                .andExpect(jsonPath("$.data[0].status").value("SUCCESS"))
+                // Bảo mật: passwordHash không được lộ trong danh sách
+                .andExpect(jsonPath("$.data[0].user.passwordHash").doesNotExist());
+    }
 }
