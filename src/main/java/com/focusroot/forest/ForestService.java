@@ -20,7 +20,7 @@ public class ForestService {
     private final TreeSpeciesRepository treeSpeciesRepository;
 
     /**
-     * Lấy danh sách Timeline khu rừng (Mặc định đã được Danh sort OrderByPlantedAtDesc cực chuẩn)
+     * Lấy danh sách Timeline khu rừng của người dùng (Đã sắp xếp theo thời gian trồng mới nhất)
      */
     public List<MyForest> getForest(String username) {
         User user = userRepository.findByUsername(username)
@@ -28,13 +28,15 @@ public class ForestService {
         return forestRepository.findByUserOrderByPlantedAtDesc(user);
     }
 
+    /**
+     * Lấy danh sách tất cả các loài cây hiện có
+     */
     public List<TreeSpecies> getAllSpecies() {
         return treeSpeciesRepository.findAll();
     }
 
     /**
-     * Nghiệp vụ Phần 1: Mua cây bằng coin tại Cửa hàng
-     * Đảm bảo kiểm tra điều kiện ví và trừ coin Atomic an toàn, chống số dư âm
+     * Nghiệp vụ Mua cây bằng coin tại Shop (Kiểm soát an toàn ví coin, không âm tiền)
      */
     public MyForest buyTree(String username, Long speciesId) {
         User user = userRepository.findByUsername(username)
@@ -43,47 +45,40 @@ public class ForestService {
         TreeSpecies species = treeSpeciesRepository.findById(speciesId)
                 .orElseThrow(() -> new EntityNotFoundException("Tree species not found"));
 
-        // Kiểm tra điều kiện số dư coin của tài khoản
-        if (user.getTotalCoins() < species.getBuyCostCoins()) {
+        // Kiểm tra số dư coin của tài khoản (Trường coin mới dạng Integer)
+        if (user.getCoin() < species.getCoinCost()) {
             throw new IllegalArgumentException("Insufficient coins to buy this tree");
         }
 
-        // Trừ coin atomic trực tiếp trên đối tượng được quản lý bởi Hibernate Persistence Context
-        user.setTotalCoins(user.getTotalCoins() - species.getBuyCostCoins());
+        // Trừ coin an toàn (Atomic) trên Persistent Context
+        user.setCoin(user.getCoin() - species.getCoinCost());
         userRepository.save(user);
 
-        // Tiến hành gieo cây mới vào khu rừng ở trạng thái PURCHASED
-        MyForest plant = new MyForest();
-        plant.setUser(user);
-        plant.setTreeSpecies(species);
-        plant.setPlantedAt(LocalDateTime.now());
-        plant.setStatus("PURCHASED");
+        // Gieo cây mới với trạng thái isAlive = true (Cây mua được coi là sống)
+        MyForest plant = MyForest.builder()
+                .user(user)
+                .treeSpecies(species)
+                .plantedAt(LocalDateTime.now())
+                .isAlive(true)
+                .build();
 
         return forestRepository.save(plant);
     }
 
     /**
-     * Core logic nghiệp vụ Tuần 3 & Cải tiến Tuần 5: Xử lý gieo cây mọc hoặc cây chết héo sau khi phiên kết thúc.
-     * Đã bổ sung cơ chế cộng coin thưởng tích lũy khi thành công để User có tiền đi Shop mua cây.
+     * Xử lý gieo cây mọc hoặc cây chết héo sau khi phiên kết thúc (Spring Event Listener)
      */
-    public MyForest handleSessionEnd(User user, TreeSpecies species, String sessionStatus) {
+    public MyForest handleSessionEnd(User user, TreeSpecies species, boolean succeeded) {
         MyForest plant = new MyForest();
         plant.setUser(user);
         plant.setTreeSpecies(species);
         plant.setPlantedAt(LocalDateTime.now());
+        plant.setIsAlive(succeeded);
 
-        if ("COMPLETED".equals(sessionStatus)) {
-            plant.setStatus("ALIVE");
-            
-            // 1. Logic cộng điểm thưởng tích lũy cũ
-            user.setTotalPoints(user.getTotalPoints() + species.getCostPoints());
-            
-            // 2. Logic bổ sung tuần 5: Thưởng 10 coins tạo dòng tiền dương khép kín cho tài khoản
-            user.setTotalCoins(user.getTotalCoins() + 10);
-            
+        if (succeeded) {
+            // Sử dụng trường coin mới được refactor
+            user.setCoin(user.getCoin() + species.getCoinCost());
             userRepository.save(user);
-        } else {
-            plant.setStatus("WITHERED"); // Cây héo rũ nếu phiên làm việc thất bại/bỏ cuộc
         }
 
         return forestRepository.save(plant);
