@@ -16,6 +16,8 @@ public interface SessionRepository extends JpaRepository<FocusSession, Long> {
 
     Optional<FocusSession> findByUserAndStatus(User user, FocusSession.Status status);
 
+    boolean existsByUserAndStatus(User user, FocusSession.Status status);
+
     long countByUserAndStatus(User user, FocusSession.Status status);
 
     // --- Thống kê (gộp từ FocusSessionRepository cũ khi hợp nhất session module, issue #43) ---

@@ -18,5 +18,19 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
     @Query("SELECT gm FROM GroupMember gm JOIN gm.user u WHERE u.username = :username AND gm.status = :status")
     List<GroupMember> findByUsernameAndStatus(@Param("username") String username, @Param("status") GroupMember.Status status);
 
+    @Query("""
+            SELECT gm
+            FROM GroupMember gm
+            JOIN FETCH gm.user
+            WHERE gm.group = :group AND gm.status = :status
+            ORDER BY gm.joinedAt ASC
+            """)
+    List<GroupMember> findByGroupAndStatusOrderByJoinedAtAsc(
+            @Param("group") FocusGroup group,
+            @Param("status") GroupMember.Status status
+    );
+
+    boolean existsByGroupAndUserAndStatus(FocusGroup group, User user, GroupMember.Status status);
+
     long countByGroupAndStatus(FocusGroup group, GroupMember.Status status);
 }

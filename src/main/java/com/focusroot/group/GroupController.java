@@ -47,6 +47,15 @@ public class GroupController {
         return ResponseEntity.ok(ApiResponse.ok("Joined group", groupService.mapMemberToResponse(member)));
     }
 
+    @Operation(summary = "Get active members of a group with current focusing status")
+    @GetMapping("/{id}/members")
+    public ResponseEntity<ApiResponse<List<GroupMemberResponse>>> getGroupMembers(
+            @AuthenticationPrincipal UserDetails principal,
+            @PathVariable Long id) {
+        List<GroupMemberResponse> members = groupService.getGroupMembers(principal.getUsername(), id);
+        return ResponseEntity.ok(ApiResponse.ok(members));
+    }
+
     @Operation(summary = "Get all groups current user belongs to")
     @GetMapping("/mine")
     public ResponseEntity<ApiResponse<List<GroupResponse>>> getMyGroups(
