@@ -2,10 +2,13 @@ package com.focusroot.group;
 
 import java.util.List;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.focusroot.common.AppConstants;
+import com.focusroot.session.FocusSession;
+import com.focusroot.session.SessionRepository;
 import com.focusroot.user.User;
 import com.focusroot.user.UserRepository;
 
@@ -18,7 +21,7 @@ public class GroupService {
 
     private final GroupRepository groupRepository;
     private final GroupMemberRepository memberRepository;
-    private final GroupSessionRepository groupSessionRepository;
+    private final SessionRepository sessionRepository;
     private final UserRepository userRepository;
 
     @Transactional
@@ -71,6 +74,20 @@ public class GroupService {
         return groupRepository.findGroupsByActiveMember(user);
     }
 
+    @Transactional(readOnly = true)
+    public List<GroupMemberResponse> getGroupMembers(String username, Long groupId) {
+        User requester = findUser(username);
+        FocusGroup group = findGroup(groupId);
+
+        if (!memberRepository.existsByGroupAndUserAndStatus(group, requester, GroupMember.Status.ACTIVE)) {
+            throw new AccessDeniedException("Access denied");
+        }
+
+        return memberRepository.findByGroupAndStatusOrderByJoinedAtAsc(group, GroupMember.Status.ACTIVE).stream()
+                .map(this::mapMemberToResponse)
+                .toList();
+    }
+
     private User findUser(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -99,6 +116,7 @@ public class GroupService {
                 .groupName(member.getGroup().getName())
                 .username(member.getUser().getUsername())
                 .status(member.getStatus())
+                .focusing(sessionRepository.existsByUserAndStatus(member.getUser(), FocusSession.Status.IN_PROGRESS))
                 .joinedAt(member.getJoinedAt())
                 .build();
     }

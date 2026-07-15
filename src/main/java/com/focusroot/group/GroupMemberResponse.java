@@ -13,5 +13,6 @@ public class GroupMemberResponse {
     private String groupName;
     private String username;
     private GroupMember.Status status;
+    private Boolean focusing;
     private LocalDateTime joinedAt;
 }

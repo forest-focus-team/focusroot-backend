@@ -6,6 +6,7 @@ import com.focusroot.forest.TreeSpecies;
 import com.focusroot.forest.TreeSpeciesRepository;
 import com.focusroot.user.User;
 import com.focusroot.user.UserRepository;
+import com.focusroot.websocket.GroupFocusRealtimeService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class SessionService {
     private final UserRepository userRepository;
     private final ForestRepository forestRepository;
     private final TreeSpeciesRepository treeSpeciesRepository;
+    private final GroupFocusRealtimeService groupFocusRealtimeService;
 
     @Transactional
     public FocusSession startSession(String username, StartSessionRequest request) {
@@ -45,7 +47,9 @@ public class SessionService {
                 .plannedDuration(request.getPlannedDuration())
                 .build();
 
-        return sessionRepository.save(session);
+        FocusSession savedSession = sessionRepository.save(session);
+        groupFocusRealtimeService.broadcastFocusStatusChangeAfterCommit(username, savedSession.getStatus());
+        return savedSession;
     }
 
     @Transactional
@@ -97,7 +101,9 @@ public class SessionService {
             forestRepository.save(tree);
         }
 
-        return sessionRepository.save(session);
+        FocusSession savedSession = sessionRepository.save(session);
+        groupFocusRealtimeService.broadcastFocusStatusChangeAfterCommit(username, savedSession.getStatus());
+        return savedSession;
     }
 
     public List<FocusSession> getHistory(String username) {

@@ -5,18 +5,13 @@ import java.security.Principal;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
-@RequiredArgsConstructor
 public class GroupSessionHandler {
-
-    private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/groups/{groupId}/join")
     @SendTo("/topic/groups/{groupId}/members")
@@ -60,5 +55,19 @@ public class GroupSessionHandler {
         return new GroupEvent("MEMBER_LEFT", principal.getName(), groupId);
     }
 
-    public record GroupEvent(String type, String username, Long groupId) {}
+    public record GroupEvent(String type, String username, Long groupId, String sessionStatus, Boolean focusing) {
+
+        public GroupEvent(String type, String username, Long groupId) {
+            this(type, username, groupId, null, null);
+        }
+
+        public static GroupEvent focusStatusChanged(
+                String username,
+                Long groupId,
+                String sessionStatus,
+                boolean focusing
+        ) {
+            return new GroupEvent("FOCUS_STATUS_CHANGED", username, groupId, sessionStatus, focusing);
+        }
+    }
 }
