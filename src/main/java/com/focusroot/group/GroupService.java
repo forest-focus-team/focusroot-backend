@@ -81,6 +81,26 @@ public class GroupService {
                 .orElseThrow(() -> new EntityNotFoundException("Group not found: " + id));
     }
 
+    public List<GroupMemberResponse> getGroupMembers(Long groupId, Long currentUserId) {
+        FocusGroup group = findGroup(groupId);
+
+        List<GroupMember> activeMembers = memberRepository.findByGroup_IdAndStatus(groupId, GroupMember.Status.ACTIVE);
+
+        boolean isCurrentUserActiveMember = activeMembers.stream()
+                .anyMatch(member -> member.getUser().getId().equals(currentUserId));
+
+        if (!isCurrentUserActiveMember) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN,
+                    "Bạn không phải là thành viên active của nhóm này"
+            );
+        }
+
+        return activeMembers.stream()
+                .map(this::mapMemberToResponse)
+                .toList();
+    }
+
     public GroupResponse mapGroupToResponse(FocusGroup group) {
         return GroupResponse.builder()
                 .id(group.getId())

@@ -19,4 +19,6 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
     List<GroupMember> findByUsernameAndStatus(@Param("username") String username, @Param("status") GroupMember.Status status);
 
     long countByGroupAndStatus(FocusGroup group, GroupMember.Status status);
+
+    List<GroupMember> findByGroup_IdAndStatus(Long groupId, GroupMember.Status status);
 }

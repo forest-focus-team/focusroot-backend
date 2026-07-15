@@ -57,4 +57,16 @@ public class GroupController {
                 .toList();
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
+
+    @Operation(summary = "Get list of active members in a group")
+    @GetMapping("/{id}/members")
+    public ResponseEntity<ApiResponse<List<GroupMemberResponse>>> getGroupMembers(
+            @AuthenticationPrincipal UserDetails principal,
+            @PathVariable Long id) {
+        
+        com.focusroot.auth.UserPrincipal userPrincipal = (com.focusroot.auth.UserPrincipal) principal;
+        List<GroupMemberResponse> members = groupService.getGroupMembers(id, userPrincipal.getId());
+        
+        return ResponseEntity.ok(ApiResponse.ok(members));
+    }
 }
